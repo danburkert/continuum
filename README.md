@@ -49,7 +49,7 @@ fromTuple: continuum.Interval[String] = [a, z)
 
 // Ranges may be implicitly converted to an Interval
 scala> val fromRange: Interval[Int] = 1 until 10
-fromRange: continuum.Interval[Int] =
+fromRange: continuum.Interval[Int] = [1, 10)
 
 // and converted explicitly back to a Range
 scala> fromRange.toRange
