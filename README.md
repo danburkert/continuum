@@ -2,10 +2,9 @@
 
 continuum is a library for working with intervals over continuous, total-ordered domains in Scala.  The functionality is similar to Guava's [Range](https://code.google.com/p/guava-libraries/wiki/RangesExplained) library. Intervals may be grouped into interval sets which automatically coalesce overlapping intervals.
 
-## examples
+[![Build Status](https://travis-ci.org/danburkert/continuum.png)](https://travis-ci.org/danburkert/continuum)
 
-
-### Interval
+## Interval
 An interval is a non-empty, two sided bound over a continuous, infinite, total-ordered set of values. An interval contains all values between its lower and upper bound. Additionally, the upper or lower bound of the interval may be unbounded, in which case the interval contains all values above or below, respectively.  Intervals provide a rich interface of constructors and set-like operations:
 
 ```scala
@@ -69,7 +68,7 @@ scala> Interval.lessThan(0) span Interval.open(20, 25)
 res12: continuum.Interval[Int] = (-∞, 25)
 ```
 
-### IntervalSet
+## IntervalSet
 
 An interval set is a set which contains 0 or more intervals. Connected intervals are automatically coalesced, so at all times an interval set contains only the minimum number of intervals necessary. Interval sets are immutable and persistent, and support the full Scala Set API.
 
@@ -98,3 +97,8 @@ scala> IntervalSet(Interval.all[Int]) - Interval.closed(32, 35)
 res5: continuum.IntervalSet[Int] = IntervalSet((-∞, 32), (35, ∞))
 ```
 
+## License
+
+Copyright © 2013 Dan Burkert
+
+Distributed under the Apache License, Version 2.0
