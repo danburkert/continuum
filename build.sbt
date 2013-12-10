@@ -1,6 +1,8 @@
+organization := "danburkert"
+
 name := "continuum"
 
-version := "0.1"
+version := "0.1-SNAPSHOT"
 
 scalaVersion := "2.10.3"
 
