@@ -2,7 +2,7 @@ package continuum
 
 import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.SortedSet
-import scala.collection.{GenSet, mutable, Set, SetLike}
+import scala.collection.{GenSet, mutable, SortedSetLike}
 
 /**
  * A set containing 0 or more intervals. Intervals which may be unioned together are automatically
@@ -10,7 +10,7 @@ import scala.collection.{GenSet, mutable, Set, SetLike}
  * Interval sets are immutable and persistent.
  */
 final class IntervalSet[T <% Ordered[T]](override val seq: SortedSet[Interval[T]])
-    extends Set[Interval[T]] with SetLike[Interval[T], IntervalSet[T]] {
+  extends SortedSet[Interval[T]] with SortedSetLike[Interval[T], IntervalSet[T]] {
 
   override def empty: IntervalSet[T] = IntervalSet.empty[T]
 
@@ -35,6 +35,16 @@ final class IntervalSet[T <% Ordered[T]](override val seq: SortedSet[Interval[T]
 
   override def intersect(other: GenSet[Interval[T]]): IntervalSet[T] =
     other.foldLeft(this)(_ intersect _)
+
+  implicit def ordering: Ordering[Interval[T]] = implicitly[Ordering[Interval[T]]]
+
+  override def rangeImpl(from: Option[Interval[T]], until: Option[Interval[T]]): IntervalSet[T] =
+    (from, until) match {
+      case (Some(f), Some(u)) => intersect(f.span(u))
+      case (Some(f), None) => new IntervalSet(dropLesser(f))
+      case (None, Some(u)) => intersect(u.lesser.fold(u)(_ span u))
+      case (None, None) => this
+    }
 
   override def stringPrefix: String = "IntervalSet"
 
