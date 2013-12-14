@@ -79,9 +79,7 @@ object IntervalSet extends {
 
   def empty[T <% Ordered[T]] = new IntervalSet(SortedSet.empty[Interval[T]])
 
-  def apply[T <% Ordered[T]](intervals: Interval[T]*): IntervalSet[T] = apply(intervals)
-
-  def apply[T <% Ordered[T]](intervals: TraversableOnce[Interval[T]]): IntervalSet[T] =
+  def apply[T <% Ordered[T]](intervals: Interval[T]*): IntervalSet[T] =
     intervals.foldLeft(empty[T])(_ + _)
 
   def newBuilder[T <% Ordered[T]]: mutable.Builder[Interval[T], IntervalSet[T]] =

@@ -198,7 +198,11 @@ object Interval {
 
   def all[T <% Ordered[T]]: Interval[T] = full
 
-  def point[T <% Ordered[T]](p: T): Interval[T] = closed(p, p)
+  def point[T <% Ordered[T]](point: T): Interval[T] = closed(point, point)
+
+  def apply[T <% Ordered[T]]: Interval[T] = full
+
+  def apply[T <% Ordered[T]](point: T): Interval[T] = closed(point, point)
 
   implicit def fromTuple[T <% Ordered[T]](tuple: (T, T)): Interval[T] =
     closedOpen(tuple._1, tuple._2)
