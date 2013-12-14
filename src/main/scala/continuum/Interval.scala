@@ -127,6 +127,25 @@ final case class Interval[T <% Ordered[T]](lower: GreaterRay[T], upper: LesserRa
     upper.tangent.map(lower => Interval(lower, LesserRay(Unbounded())))
 
   /**
+   * Returns a normalized form of this Interval, if possible. The lower bound of a normalized
+   * interval is Closed and the upper bound of a normalized interval is Open. If this interval is
+   * unbounded in some direction, then the corresponding normalized bound will be None.
+   */
+  def normalize(implicit discrete: Discrete[T]): (Option[T], Option[T]) = {
+    val l = lower.bound match {
+      case Closed(cut) => Some(cut)
+      case Open(cut)   => discrete.next(cut)
+      case _ => None
+    }
+    val u = upper.bound match {
+      case Closed(cut) => discrete.next(cut)
+      case Open(cut) => Some(cut)
+      case _ => None
+    }
+    l -> u
+  }
+
+  /**
    * Converts this interval to a [[scala.collection.immutable.Range]], if possible.
    *
    * @throws IllegalArgumentException if the resulting range would contain more than

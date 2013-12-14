@@ -66,6 +66,16 @@ res11: Option[continuum.Interval[String]] = Some((aardvark, deer])
 // or the minimum spanning interval
 scala> Interval.lessThan(0) span Interval.open(20, 25)
 res12: continuum.Interval[Int] = (-∞, 25)
+
+// Intervals over discrete domains may be normalized
+scala> Interval.openClosed(10, 20).normalize
+res13: (Option[Int], Option[Int]) = (Some(11),Some(21))
+
+scala> Interval.greaterThan(12).normalize
+res14: (Option[Int], Option[Int]) = (Some(21),None)
+
+scala> Interval.point(25).normalize
+res15: (Option[Int], Option[Int]) = (Some(25),Some(26))
 ```
 
 ## IntervalSet
