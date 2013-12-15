@@ -146,6 +146,22 @@ final case class Interval[T <% Ordered[T]](lower: GreaterRay[T], upper: LesserRa
   }
 
   /**
+   * Tests if this interval encloses only a single discrete point.
+   */
+  def isPoint: Boolean = (lower.bound, upper.bound) match {
+    case (Closed(l), Closed(u)) if l == u => true
+    case _ => false
+  }
+
+  /**
+   * Returns the discrete value enclosed by this interval, if it is a point.
+   */
+  def point: Option[T] = (lower.bound, upper.bound) match {
+    case (Closed(l), Closed(u)) if l == u => Some(l)
+    case _ => None
+  }
+
+  /**
    * Converts this interval to a [[scala.collection.immutable.Range]], if possible.
    *
    * @throws IllegalArgumentException if the resulting range would contain more than
