@@ -22,26 +22,26 @@ with Generators {
       val bu = bounds(3)
 
       // unbounded above & closed
-      (Interval.atLeast(al) intersects Interval.closed(bl, bu))
+      Interval.atLeast(al) intersects Interval.closed(bl, bu) should be (true)
 
       // closed & closed
-      (Interval.closed(al, au) intersects Interval.closed(bl, bu)) should be (true)
+      Interval.closed(al, au) intersects Interval.closed(bl, bu) should be (true)
 
       whenever(bl < au) {
 
         whenever(al < au) {
           // open & closed
-          (Interval.open(al, au) intersects Interval.closed(bl, bu)) should be (true)
+          Interval.open(al, au) intersects Interval.closed(bl, bu) should be (true)
         }
 
         whenever(bl < bu) {
           // closed & open
-          (Interval.closed(al, au) intersects Interval.open(bl, bu)) should be (true)
+          Interval.closed(al, au) intersects Interval.open(bl, bu) should be (true)
         }
 
         whenever(al < au && bl < bu) {
           // open & open
-          (Interval.open(al, au) intersects Interval.open(bl, bu)) should be (true)
+          Interval.open(al, au) intersects Interval.open(bl, bu) should be (true)
         }
       }
     }
@@ -57,7 +57,7 @@ with Generators {
 
   property("interval intersection is commutative") {
     forAll { (a: Interval[Int], b: Interval[Int]) =>
-      (a intersect b) should equal (b intersect a)
+      a intersect b should equal (b intersect a)
     }
   }
 
@@ -69,7 +69,7 @@ with Generators {
 
   property("interval intersection is idempotent") {
     forAll { (interval: Interval[Int]) =>
-      (interval intersect interval) should equal (Some(interval))
+      interval intersect interval should equal (Some(interval))
     }
   }
 
@@ -92,7 +92,7 @@ with Generators {
 
   property("interval union is commutative") {
     forAll { (a: Interval[Int], b: Interval[Int]) =>
-      (a union b) should equal (b union a)
+      a union b should equal (b union a)
     }
   }
 
@@ -105,7 +105,7 @@ with Generators {
   property("interval union is dominated by the full interval") {
     forAll { (interval: Interval[Int]) =>
       val full = Interval.full[Int]
-      (full union interval) should equal (Some(full))
+      full union interval should equal (Some(full))
     }
   }
 
@@ -138,7 +138,7 @@ with Generators {
 
   property("interval difference zero") {
     forAll { (interval: Interval[Int]) =>
-      (interval difference interval) should equal (Set())
+      interval difference interval should equal (Set())
     }
   }
 
