@@ -1,13 +1,15 @@
 package continuum
 
-import org.scalatest.{Matchers, PropSpec}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.{Matchers, PropSpec}
+
+import continuum.test.Generators
 
 class IntervalSetSpec
-extends PropSpec
-with GeneratorDrivenPropertyChecks
-with Matchers
-with Generators {
+  extends PropSpec
+  with GeneratorDrivenPropertyChecks
+  with Matchers
+  with Generators {
 
   property("An interval set should contain all of its constituent intervals") {
     forAll { (intervals: List[Interval[Int]]) =>

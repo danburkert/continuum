@@ -1,10 +1,10 @@
-package continuum
+package continuum.test
 
-import org.scalacheck.{Shrink, Gen, Arbitrary}
 import org.scalacheck.Arbitrary.arbitrary
+import org.scalacheck.{Shrink, Gen, Arbitrary}
 
-import continuum.bound.{Open, Closed, Unbounded}
-import scala.collection.immutable.SortedSet
+import continuum.bound.{Closed, Open, Unbounded}
+import continuum.{IntervalSet, Interval, Ray, Bound, LesserRay, GreaterRay}
 
 trait Generators {
 
@@ -18,8 +18,8 @@ trait Generators {
 
   implicit def arbBound[T <% Ordered[T] : Arbitrary]: Arbitrary[Bound[T]] =
     Arbitrary(Gen.frequency(
-      4 -> arbitrary[Open[T]],
       4 -> arbitrary[Closed[T]],
+      4 -> arbitrary[Open[T]],
       1 -> arbitrary[Unbounded[T]]))
 
   implicit def arbLesserRay[T <% Ordered[T] : Arbitrary]: Arbitrary[LesserRay[T]] =
@@ -38,6 +38,11 @@ trait Generators {
     } yield Interval(a, b)
   }
 
+  /**
+   * Generates arbitrary Interval[Int]s. This is functionally the same as the generic Interval
+   * generator, but it is more efficient at generating valid intervals. It will automatically be
+   * used by the ScalaCheck framework if both are in scope.
+   */
   implicit def arbIntInterval: Arbitrary[Interval[Int]] = Arbitrary {
     def genOpenAbove(below: Bound[Int]): Gen[Bound[Int]] = below match {
       case Closed(l)   if l == Int.MaxValue => arbitrary[Unbounded[Int]]
@@ -55,8 +60,8 @@ trait Generators {
     }
 
     def genLesserRay(g: GreaterRay[Int]): Gen[LesserRay[Int]] = Gen.frequency(
-      6 -> genOpenAbove(g.bound),
-      6 -> genClosedAbove(g.bound),
+      4 -> genClosedAbove(g.bound),
+      4 -> genOpenAbove(g.bound),
       1 -> arbitrary[Unbounded[Int]]
     ).map(LesserRay(_))
 
@@ -97,43 +102,49 @@ trait Generators {
     }
   }
 
-  def genOpen: Gen[Interval[Int]] = Gen.sized { size =>
-    for {
-      lower <- arbitrary[Int] if lower + size > lower
-    } yield Interval.open(lower, lower + size)
-  }
+  /**
+   * Generates ranges which can be converted to a [[scala.collection.immutable.Range]] with the
+   * .toRange method. As opposed to the arbitrary Int interval generator, this ensures the created
+   * ranges are of a reasonable size.
+   */
+  def genIntervalRange: Gen[Interval[Int]] = {
+    def genOpen: Gen[Interval[Int]] = Gen.sized { size =>
+      for {
+        lower <- arbitrary[Int] if lower + size > lower
+      } yield Interval.open(lower, lower + size)
+    }
 
-  def genClosed: Gen[Interval[Int]] = Gen.sized { size =>
-    for {
-      lower <- arbitrary[Int] if lower + size >= lower
-    } yield Interval.closed(lower, lower + size)
-  }
+    def genClosed: Gen[Interval[Int]] = Gen.sized { size =>
+      for {
+        lower <- arbitrary[Int] if lower + size >= lower
+      } yield Interval.closed(lower, lower + size)
+    }
 
-  def genOpenClosed: Gen[Interval[Int]] = Gen.sized { size =>
-    for {
-      lower <- arbitrary[Int] if lower + size > lower
-    } yield Interval.openClosed(lower, lower + size)
-  }
+    def genOpenClosed: Gen[Interval[Int]] = Gen.sized { size =>
+      for {
+        lower <- arbitrary[Int] if lower + size > lower
+      } yield Interval.openClosed(lower, lower + size)
+    }
 
-  def genClosedOpen: Gen[Interval[Int]] = Gen.sized { size =>
-    for {
-      lower <- arbitrary[Int] if lower + size > lower
-    } yield Interval.closedOpen(lower, lower + size)
-  }
+    def genClosedOpen: Gen[Interval[Int]] = Gen.sized { size =>
+      for {
+        lower <- arbitrary[Int] if lower + size > lower
+      } yield Interval.closedOpen(lower, lower + size)
+    }
 
-  def closedUnbounded: Gen[Interval[Int]] =
-    Gen.sized(size => Interval.atLeast(Int.MaxValue - size))
+    def closedUnbounded: Gen[Interval[Int]] =
+      Gen.sized(size => Interval.atLeast(Int.MaxValue - size))
 
-  def openUnbounded: Gen[Interval[Int]] =
-    Gen.sized(size => Interval.greaterThan(Int.MaxValue - size))
+    def openUnbounded: Gen[Interval[Int]] =
+      Gen.sized(size => Interval.greaterThan(Int.MaxValue - size))
 
-  def unboundedClosed: Gen[Interval[Int]] =
-    Gen.sized(size => Interval.atMost(Int.MinValue + size))
+    def unboundedClosed: Gen[Interval[Int]] =
+      Gen.sized(size => Interval.atMost(Int.MinValue + size))
 
-  def unboundedOpen: Gen[Interval[Int]] =
-    Gen.sized(size => Interval.lessThan(Int.MinValue + size))
+    def unboundedOpen: Gen[Interval[Int]] =
+      Gen.sized(size => Interval.lessThan(Int.MinValue + size))
 
-  def genIntervalRange = Gen.frequency(
+    Gen.frequency(
       4 -> genOpen,
       4 -> genClosed,
       4 -> genOpenClosed,
@@ -142,10 +153,14 @@ trait Generators {
       1 -> openUnbounded,
       1 -> unboundedClosed,
       1 -> unboundedOpen)
+  }
 
   implicit def arbIntervalSet[T <% Ordered[T] : Arbitrary]: Arbitrary[IntervalSet[T]] =
     Arbitrary(for (intervals <- arbitrary[Array[Interval[T]]]) yield IntervalSet(intervals:_*))
 
+  /**
+   * Generates arbitrary interval sets of Ints using the more efficient Int interval generator.
+   */
   implicit def arbIntIntervalSet: Arbitrary[IntervalSet[Int]] =
     Arbitrary(for (intervals <- arbitrary[Array[Interval[Int]]]) yield IntervalSet(intervals:_*))
 }

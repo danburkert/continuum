@@ -4,8 +4,13 @@ import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import org.scalatest.{Matchers, PropSpec}
 
 import continuum.bound.Unbounded
+import continuum.test.Generators
 
-class RaySpec extends PropSpec with GeneratorDrivenPropertyChecks with Matchers with Generators {
+class RaySpec
+  extends PropSpec
+  with GeneratorDrivenPropertyChecks
+  with Matchers
+  with Generators {
 
   property("a greater ray encloses a greater ray which it starts before.") {
     forAll { (a: Bound[Int], b: Bound[Int]) =>

@@ -36,7 +36,7 @@ final class IntervalSet[T <% Ordered[T]](override val seq: SortedSet[Interval[T]
   override def intersect(other: GenSet[Interval[T]]): IntervalSet[T] =
     other.foldLeft(this)(_ intersect _)
 
-  implicit def ordering: Ordering[Interval[T]] = implicitly[Ordering[Interval[T]]]
+  implicit def ordering: Ordering[Interval[T]] = Ordering.ordered
 
   override def rangeImpl(from: Option[Interval[T]], until: Option[Interval[T]]): IntervalSet[T] =
     (from, until) match {

@@ -1,9 +1,15 @@
 package continuum
 
-import org.scalatest.{PropSpec, Matchers}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.{PropSpec, Matchers}
 
-class BoundSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matchers with Generators {
+import continuum.test.Generators
+
+class BoundSpec
+  extends PropSpec
+  with GeneratorDrivenPropertyChecks
+  with Matchers
+  with Generators {
 
   property("The above relation on bounds is transitive.") {
     forAll { (a: Bound[Int], b: Bound[Int], c: Bound[Int]) =>
@@ -18,5 +24,4 @@ class BoundSpec extends PropSpec with GeneratorDrivenPropertyChecks with Matcher
       whenever(upper isBelow c) { (lower isBelow c) should be (true) }
     }
   }
-
 }
