@@ -2,7 +2,7 @@ organization := "danburkert"
 
 name := "continuum"
 
-version := "0.3"
+version := "0.4-SNAPSHOT"
 
 scalaVersion := "2.10.3"
 
