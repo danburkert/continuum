@@ -16,8 +16,8 @@ import continuum.bound.{Closed, Open, Unbounded}
  *           interval operates on.
  */
 final case class Interval[T <% Ordered[T]](lower: GreaterRay[T], upper: LesserRay[T])
-    extends (T => Boolean)
-    with Ordered[Interval[T]] {
+  extends (T => Boolean)
+  with Ordered[Interval[T]] {
 
   require(Interval.validate(lower, upper), "Invalid interval rays: " + lower + ", " + upper + ".")
 
@@ -96,9 +96,9 @@ final case class Interval[T <% Ordered[T]](lower: GreaterRay[T], upper: LesserRa
    * Intervals are compared first by their upper rays, and then by their lower rays.
    */
   def compare(other: Interval[T]): Int = {
-    val c = upper compare other.upper
+    val c = lower compare other.lower
     if (c != 0) c
-    else lower compare other.lower
+    else upper compare other.upper
   }
 
   /**
@@ -246,5 +246,13 @@ object Interval {
     require(range.step == 1, "Range must be continuous.")
     if(range.isInclusive) closed(range.start, range.end)
     else closedOpen(range.start, range.end)
+  }
+
+  def rightOrdering[T <% Ordered[T]]: Ordering[Interval[T]] = new Ordering[Interval[T]] {
+    def compare(a: Interval[T], b: Interval[T]): Int = {
+      val c = a.upper compare b.upper
+      if (c != 0) c
+      else a.lower compare b.lower
+    }
   }
 }

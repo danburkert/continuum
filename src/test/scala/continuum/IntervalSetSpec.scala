@@ -34,4 +34,24 @@ class IntervalSetSpec
       (set - interval) contains interval should be (false)
     }
   }
+
+  property("An interval set intersected with an interval should contain only intervals in common.") {
+    forAll { (set: IntervalSet[Int], interval: Interval[Int]) =>
+      val intersection = set intersect interval
+      forAll { i: Interval[Int] =>
+        if (set(i) && interval.encloses(i)) intersection(i) should be (true)
+        else intersection(i) should be (false)
+      }
+    }
+  }
+
+  property("An interval set intersected with an interval set should contain only intervals in common.") {
+    forAll { (a: IntervalSet[Int], b: IntervalSet[Int]) =>
+      val intersection = a intersect b
+      forAll { i: Interval[Int] =>
+        if (a(i) && b(i)) intersection(i) should be (true)
+        else intersection(i) should be (false)
+      }
+    }
+  }
 }
