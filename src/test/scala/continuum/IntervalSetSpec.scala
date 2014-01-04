@@ -54,4 +54,13 @@ class IntervalSetSpec
       }
     }
   }
+
+  property("The span of an interval set  all intervals in the interval set.") {
+    forAll { (set: IntervalSet[Int]) =>
+      val span = set.span
+      forAll { i: Interval[Int] =>
+        if (set(i)) span.get.encloses(i) should be (true)
+      }
+    }
+  }
 }

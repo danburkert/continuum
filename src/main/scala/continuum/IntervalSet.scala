@@ -174,7 +174,7 @@ class IntervalSet[T <% Ordered[T]] private (tree: RB.Tree[Interval[T], Unit])
     IntervalSet(buf.toArray:_*)
   }
 
-  def span: Interval[T] = head span last
+  def span: Option[Interval[T]] = if (!RB.isEmpty(tree)) Some(head span last) else None
 
   def complement: IntervalSet[T] = IntervalSet(Interval.all[T]) -- this
 }
