@@ -170,7 +170,11 @@ final case class Interval[T <% Ordered[T]](lower: GreaterRay[T], upper: LesserRa
   def toRange(implicit num: Numeric[T]): Range = {
     val start: Int = lower.bound match {
       case Closed(c) => num.toInt(c)
-      case Open(c)   => num.toInt(c) + 1
+      case Open(c)   => {
+        val i = num.toInt(c)
+        if (i == Int.MaxValue) return Range(Int.MaxValue, Int.MaxValue)
+        else i + 1
+      }
       case Unbounded() => Int.MinValue
     }
     upper.bound match {

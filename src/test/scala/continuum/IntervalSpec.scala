@@ -51,8 +51,8 @@ class IntervalSpec
 
   property("If intervals contain a point in common, then the intervals intersect") {
     forAll(genIntervalRange, genIntervalRange) { (a: Interval[Int], b: Interval[Int]) =>
-      whenever(a.toRange != null && b.toRange != null) {
-        a intersects b should equal (!a.toRange.intersect(b.toRange).isEmpty)
+      whenever(a.toRange.nonEmpty && b.toRange.nonEmpty) {
+        (a intersect b).fold(false)(_.toRange.nonEmpty) should equal (a.toRange.intersect(b.toRange).nonEmpty)
       }
     }
   }

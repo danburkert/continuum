@@ -23,6 +23,11 @@ object IntervalSet extends {
     }
 }
 
+/**
+ * A set containing 0 or more intervals. Intervals which may be unioned together are automatically
+ * coalesced, so at all times an interval set contains the minimum number of necessary intervals.
+ * Interval sets are immutable and persistent.
+ */
 class IntervalSet[T <% Ordered[T]] private (tree: RB.Tree[Interval[T], Unit])
   extends SortedSet[Interval[T]]
   with SortedSetLike[Interval[T], IntervalSet[T]]
