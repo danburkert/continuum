@@ -105,6 +105,8 @@ class IntervalSet[T <% Ordered[T]] private (tree: RB.Tree[Interval[T], Unit])
     intersectings.size == 1 && intersectings.head.encloses(interval)
   }
 
+  def containsPoint(point: T): Boolean = contains(Interval.point(point))
+
   override def iterator: Iterator[Interval[T]] = RB.keysIterator(tree)
 
   override def foreach[U](f: Interval[T] =>  U) = RB.foreachKey(tree, f)
