@@ -32,10 +32,16 @@ trait Generators {
       Arbitrary(Gen.oneOf(arbitrary[GreaterRay[T]], arbitrary[LesserRay[T]]))
 
   implicit def arbInterval[T <% Ordered[T]: Arbitrary]: Arbitrary[Interval[T]] = Arbitrary {
+    def validate(a: Bound[T], b: Bound[T]) =
+      Interval.validate(GreaterRay(a), LesserRay(b)) ||
+      Interval.validate(GreaterRay(b), LesserRay(a))
+    def interval(a: Bound[T], b: Bound[T]) =
+      if (Interval.validate(GreaterRay(a), LesserRay(b))) new Interval(GreaterRay(a), LesserRay(b))
+      else new Interval(GreaterRay(b), LesserRay(a))
     for {
-      a <- arbitrary[GreaterRay[T]]
-      b <- arbitrary[LesserRay[T]] if Interval.validate(a, b)
-    } yield Interval(a, b)
+      a <- arbitrary[Bound[T]]
+      b <- arbitrary[Bound[T]] if validate(a, b)
+    } yield interval(a, b)
   }
 
   /**
