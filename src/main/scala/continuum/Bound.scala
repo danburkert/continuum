@@ -30,6 +30,11 @@ sealed abstract class Bound[T <% Ordered[T]] {
    * Returns `true` if this is a bound is not unbounded.
    */
   def isBounded: Boolean = !isUnbounded
+
+  /**
+   * Tranform this bound.
+   */
+  def map[U <% Ordered[U]](f: T => U): Bound[U]
 }
 
 package bound {
@@ -48,6 +53,8 @@ package bound {
     }
 
     override def isUnbounded: Boolean = false
+
+    def map[U <% Ordered[U]](f: (T) => U): Bound[U] = Closed(f(value))
   }
 
   case class Open[T <% Ordered[T]](value: T) extends Bound[T] {
@@ -64,11 +71,14 @@ package bound {
     }
 
     override def isUnbounded: Boolean = false
+
+    def map[U <% Ordered[U]](f: (T) => U): Bound[U] = Open(f(value))
   }
 
   case class Unbounded[T <% Ordered[T]]() extends Bound[T] {
     override def isBelow(other: Bound[T]): Boolean = true
     override def isAbove(other: Bound[T]): Boolean = true
     override def isUnbounded: Boolean = true
+    def map[U <% Ordered[U]](f: (T) => U): Bound[U] = Unbounded[U]()
   }
 }

@@ -162,6 +162,13 @@ final case class Interval[T <% Ordered[T]](lower: GreaterRay[T], upper: LesserRa
   }
 
   /**
+   * Transform the bounds of this interval to create a new Interval. The resulting interval must be
+   * valid, i.e., the transformation must keep the relative order of the bounds.
+   */
+  def map[U <% Ordered[U]](f: T => U): Interval[U] =
+    Interval(GreaterRay(lower.bound.map(f)), LesserRay(upper.bound.map(f)))
+
+  /**
    * Converts this interval to a [[scala.collection.immutable.Range]], if possible.
    *
    * @throws IllegalArgumentException if the resulting range would contain more than
