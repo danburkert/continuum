@@ -109,6 +109,8 @@ class IntervalSet[T <% Ordered[T]] private (tree: RB.Tree[Interval[T], Unit])
 
   override def iterator: Iterator[Interval[T]] = RB.keysIterator(tree)
 
+  override def keysIteratorFrom(start: Interval[T]): Iterator[Interval[T]] = RB.keysIterator(tree, Some(start))
+
   override def foreach[U](f: Interval[T] =>  U) = RB.foreachKey(tree, f)
 
   override def rangeImpl(from: Option[Interval[T]], until: Option[Interval[T]]): IntervalSet[T] = newSet(RB.rangeImpl(tree, from, until))

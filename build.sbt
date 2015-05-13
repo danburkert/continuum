@@ -4,7 +4,7 @@ name := "continuum"
 
 version := "0.4-SNAPSHOT"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.11.6"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.10.1" % "provided"
 
