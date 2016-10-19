@@ -13,7 +13,7 @@ import continuum.bound.{Closed, Open, Unbounded}
  * @tparam T type of values contained in the continuous, infinite, total-ordered set which the
  *           ray operates on.
  */
-sealed abstract class Ray[T <% Ordered[T]] extends (T => Boolean) {
+sealed abstract class Ray[T](implicit conv: T => Ordered[T]) extends (T => Boolean) {
 
   def bound: Bound[T]
 
@@ -54,7 +54,7 @@ sealed abstract class Ray[T <% Ordered[T]] extends (T => Boolean) {
   def isSameDirection(other: Ray[T]): Boolean
 }
 
-case class GreaterRay[T <% Ordered[T]](bound: Bound[T]) extends Ray[T] with Ordered[GreaterRay[T]] {
+case class GreaterRay[T](bound: Bound[T])(implicit conv: T => Ordered[T]) extends Ray[T] with Ordered[GreaterRay[T]] {
 
   override def apply(point: T): Boolean = bound match {
     case Closed(value) => point >= value
@@ -114,7 +114,7 @@ case class GreaterRay[T <% Ordered[T]](bound: Bound[T]) extends Ray[T] with Orde
   }
 }
 
-case class LesserRay[T <% Ordered[T]](bound: Bound[T]) extends Ray[T] with Ordered[LesserRay[T]] {
+case class LesserRay[T](bound: Bound[T])(implicit conv: T => Ordered[T]) extends Ray[T] with Ordered[LesserRay[T]] {
 
   override def apply(point: T): Boolean = bound match {
     case Closed(value) => point <= value

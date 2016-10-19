@@ -7,15 +7,15 @@ import scala.collection.{GenSet, SortedSetLike, mutable}
 import continuum.Interval
 
 object IntervalSet extends {
-  def empty[T <% Ordered[T]]: IntervalSet[T] = new IntervalSet()
+  def empty[T](implicit conv: T=>Ordered[T]): IntervalSet[T] = new IntervalSet()
 
-  def apply[T <% Ordered[T]](intervals: Interval[T]*): IntervalSet[T] =
+  def apply[T](intervals: Interval[T]*)(implicit conv: T=>Ordered[T]): IntervalSet[T] =
     intervals.foldLeft(empty[T])(_ + _)
 
-  def newBuilder[T <% Ordered[T]]: mutable.Builder[Interval[T], IntervalSet[T]] =
+  def newBuilder[T](implicit conv: T=>Ordered[T]): mutable.Builder[Interval[T], IntervalSet[T]] =
     new mutable.SetBuilder[Interval[T], IntervalSet[T]](empty)
 
-  implicit def canBuildFrom[T <% Ordered[T]]
+  implicit def canBuildFrom[T](implicit conv: T=>Ordered[T])
   : CanBuildFrom[IntervalSet[_], Interval[T], IntervalSet[T]] =
     new CanBuildFrom[IntervalSet[_], Interval[T], IntervalSet[T]] {
       def apply(from: IntervalSet[_]): mutable.Builder[Interval[T], IntervalSet[T]] = newBuilder[T]
@@ -28,12 +28,12 @@ object IntervalSet extends {
  * coalesced, so at all times an interval set contains the minimum number of necessary intervals.
  * Interval sets are immutable and persistent.
  */
-class IntervalSet[T <% Ordered[T]] private (tree: RB.Tree[Interval[T], Unit])
+class IntervalSet[T](tree: RB.Tree[Interval[T], Unit])(implicit conv: T=>Ordered[T])
   extends SortedSet[Interval[T]]
   with SortedSetLike[Interval[T], IntervalSet[T]]
   with Serializable {
 
-  def this() = this(null)
+  def this()(implicit conv: T=>Ordered[T]) = this(null)
 
   override def ordering: Ordering[Interval[T]] = Ordering.ordered
 
@@ -108,6 +108,8 @@ class IntervalSet[T <% Ordered[T]] private (tree: RB.Tree[Interval[T], Unit])
   def containsPoint(point: T): Boolean = contains(Interval.point(point))
 
   override def iterator: Iterator[Interval[T]] = RB.keysIterator(tree)
+
+  override def keysIteratorFrom(start: Interval[T]): Iterator[Interval[T]] = RB.keysIterator(tree, Some(start))
 
   override def foreach[U](f: Interval[T] =>  U) = RB.foreachKey(tree, f)
 

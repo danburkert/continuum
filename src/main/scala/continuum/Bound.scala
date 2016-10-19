@@ -10,7 +10,7 @@ package continuum
  * @tparam T type of values contained in the continuous, infinite, total-ordered set which the
  *           bound operates on.
  */
-sealed abstract class Bound[T <% Ordered[T]] {
+sealed abstract class Bound[T](implicit conv: T=>Ordered[T]) {
   /**
    * Returns `true` if all points below the other bound are also below this bound.
    */
@@ -34,12 +34,12 @@ sealed abstract class Bound[T <% Ordered[T]] {
   /**
    * Tranform this bound.
    */
-  def map[U <% Ordered[U]](f: T => U): Bound[U]
+  def map[U](f: T => U)(implicit conv: U=>Ordered[U]): Bound[U]
 }
 
 package bound {
 
-  case class Closed[T <% Ordered[T]](value: T) extends Bound[T] {
+  case class Closed[T](value: T)(implicit conv: T=>Ordered[T]) extends Bound[T] {
     override def isAbove(otherBound: Bound[T]): Boolean = otherBound match {
       case Open(otherC) => value >= otherC
       case Closed(otherC) => value >= otherC
@@ -54,10 +54,10 @@ package bound {
 
     override def isUnbounded: Boolean = false
 
-    def map[U <% Ordered[U]](f: (T) => U): Bound[U] = Closed(f(value))
+    def map[U](f: (T) => U)(implicit conv: U=>Ordered[U]): Bound[U] = Closed(f(value))
   }
 
-  case class Open[T <% Ordered[T]](value: T) extends Bound[T] {
+  case class Open[T](value: T)(implicit conv: T=>Ordered[T]) extends Bound[T] {
     override def isAbove(otherBound: Bound[T]): Boolean = otherBound match {
       case Open(otherC) => value >= otherC
       case Closed(otherC) => value > otherC
@@ -72,13 +72,13 @@ package bound {
 
     override def isUnbounded: Boolean = false
 
-    def map[U <% Ordered[U]](f: (T) => U): Bound[U] = Open(f(value))
+    def map[U](f: (T) => U)(implicit conv: U=>Ordered[U]): Bound[U] = Open(f(value))
   }
 
-  case class Unbounded[T <% Ordered[T]]() extends Bound[T] {
+  case class Unbounded[T]()(implicit conv: T=>Ordered[T]) extends Bound[T] {
     override def isBelow(other: Bound[T]): Boolean = true
     override def isAbove(other: Bound[T]): Boolean = true
     override def isUnbounded: Boolean = true
-    def map[U <% Ordered[U]](f: (T) => U): Bound[U] = Unbounded[U]()
+    def map[U](f: (T) => U)(implicit conv: U=>Ordered[U]): Bound[U] = Unbounded[U]()
   }
 }
