@@ -109,7 +109,10 @@ class IntervalSet[T](tree: RB.Tree[Interval[T], Unit])(implicit conv: T=>Ordered
 
   override def iterator: Iterator[Interval[T]] = RB.keysIterator(tree)
 
-  override def keysIteratorFrom(start: Interval[T]): Iterator[Interval[T]] = RB.keysIterator(tree, Some(start))
+  def keysIteratorFrom(start: Interval[T]): Iterator[Interval[T]] = {
+    val keys = RB.keysIterator(tree)
+    keys.drop(keys.indexOf(start))
+  }
 
   override def foreach[U](f: Interval[T] =>  U) = RB.foreachKey(tree, f)
 
