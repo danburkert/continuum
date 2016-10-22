@@ -8,30 +8,30 @@ import continuum.{IntervalSet, Interval, Ray, Bound, LesserRay, GreaterRay}
 
 trait Generators {
 
-  implicit def arbOpenBound[T <% Ordered[T] : Arbitrary]: Arbitrary[Open[T]] =
+  implicit def arbOpenBound[T : Arbitrary](implicit conv: T => Ordered[T]): Arbitrary[Open[T]] =
     Arbitrary { for (cut <- arbitrary[T]) yield Open(cut) }
 
-  implicit def arbClosedBound[T <% Ordered[T] : Arbitrary]: Arbitrary[Closed[T]] =
+  implicit def arbClosedBound[T : Arbitrary](implicit conv: T => Ordered[T]): Arbitrary[Closed[T]] =
     Arbitrary { for (cut <- arbitrary[T]) yield Closed(cut) }
 
-  implicit def arbUnbounded[T <% Ordered[T]]: Arbitrary[Unbounded[T]] = Arbitrary(Unbounded[T]())
+  implicit def arbUnbounded[T](implicit conv: T => Ordered[T]): Arbitrary[Unbounded[T]] = Arbitrary(Unbounded[T]())
 
-  implicit def arbBound[T <% Ordered[T] : Arbitrary]: Arbitrary[Bound[T]] =
+  implicit def arbBound[T : Arbitrary](implicit conv: T => Ordered[T]): Arbitrary[Bound[T]] =
     Arbitrary(Gen.frequency(
       4 -> arbitrary[Closed[T]],
       4 -> arbitrary[Open[T]],
       1 -> arbitrary[Unbounded[T]]))
 
-  implicit def arbLesserRay[T <% Ordered[T] : Arbitrary]: Arbitrary[LesserRay[T]] =
+  implicit def arbLesserRay[T : Arbitrary](implicit conv: T => Ordered[T]): Arbitrary[LesserRay[T]] =
     Arbitrary(for (b <- arbitrary[Bound[T]]) yield LesserRay(b))
 
-  implicit def arbGreaterRay[T <% Ordered[T] : Arbitrary]: Arbitrary[GreaterRay[T]] =
+  implicit def arbGreaterRay[T : Arbitrary](implicit conv: T => Ordered[T]): Arbitrary[GreaterRay[T]] =
     Arbitrary(for (b <- arbitrary[Bound[T]]) yield GreaterRay(b))
 
-  implicit def arbRay[T <% Ordered[T] : Arbitrary]: Arbitrary[Ray[T]] =
+  implicit def arbRay[T : Arbitrary](implicit conv: T => Ordered[T]): Arbitrary[Ray[T]] =
       Arbitrary(Gen.oneOf(arbitrary[GreaterRay[T]], arbitrary[LesserRay[T]]))
 
-  implicit def arbInterval[T <% Ordered[T]: Arbitrary]: Arbitrary[Interval[T]] = Arbitrary {
+  implicit def arbInterval[T: Arbitrary](implicit conv: T => Ordered[T]): Arbitrary[Interval[T]] = Arbitrary {
     def validate(a: Bound[T], b: Bound[T]) =
       Interval.validate(GreaterRay(a), LesserRay(b)) ||
       Interval.validate(GreaterRay(b), LesserRay(a))
@@ -77,7 +77,7 @@ trait Generators {
     } yield new Interval(lower, upper)
   }
 
-  implicit def shrinkGreaterRay[T <% Ordered[T] : Shrink]: Shrink[GreaterRay[T]] = Shrink { ray =>
+  implicit def shrinkGreaterRay[T : Shrink](implicit conv: T => Ordered[T]): Shrink[GreaterRay[T]] = Shrink { ray =>
     ray.bound match {
       case Closed(n)   => for (np <- Shrink.shrink(n)) yield GreaterRay(Closed(np))
       case Open(n)     => for (np <- Shrink.shrink(n)) yield GreaterRay(Open(np))
@@ -85,7 +85,7 @@ trait Generators {
     }
   }
 
-  implicit def shrinkLesserRay[T <% Ordered[T] : Shrink]: Shrink[LesserRay[T]] = Shrink { ray =>
+  implicit def shrinkLesserRay[T : Shrink](implicit conv: T => Ordered[T]): Shrink[LesserRay[T]] = Shrink { ray =>
     ray.bound match {
       case Closed(n)   => for (np <- Shrink.shrink(n)) yield LesserRay(Closed(np))
       case Open(n)     => for (np <- Shrink.shrink(n)) yield LesserRay(Open(np))
@@ -93,7 +93,7 @@ trait Generators {
     }
   }
 
-  implicit def shrinkInterval[T <% Ordered[T] : Shrink]: Shrink[Interval[T]] = Shrink { interval =>
+  implicit def shrinkInterval[T : Shrink](implicit conv: T => Ordered[T]): Shrink[Interval[T]] = Shrink { interval =>
     for {
       lower <- Shrink.shrink(interval.lower)
       upper <- Shrink.shrink(interval.upper) if Interval.validate(lower, upper)
@@ -161,7 +161,7 @@ trait Generators {
       1 -> unboundedOpen)
   }
 
-  implicit def arbIntervalSet[T <% Ordered[T] : Arbitrary]: Arbitrary[IntervalSet[T]] =
+  implicit def arbIntervalSet[T : Arbitrary](implicit conv: T => Ordered[T]): Arbitrary[IntervalSet[T]] =
     Arbitrary(for (intervals <- arbitrary[Array[Interval[T]]]) yield IntervalSet(intervals:_*))
 
   /**
