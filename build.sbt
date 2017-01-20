@@ -6,6 +6,8 @@ version := "0.4-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
-libraryDependencies += "org.scalacheck" % "scalacheck_2.11" % "1.13.2" % "provided"
+crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1")
 
-libraryDependencies += "org.scalatest" % "scalatest_2.11" % "3.0.0" % "test"
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "provided"
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
